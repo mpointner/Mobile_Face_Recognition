@@ -5,6 +5,13 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+    <!-- On Android 4.3 and lower, writing to this directory also requires the WRITE_EXTERNAL_STORAGE permission.
+    Beginning with Android 4.4, the permission is no longer required because the directory is not accessible by other apps,
+    so you can declare the permission should be requested only on the lower versions of Android by adding the maxSdkVersion attribute:
+    -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+
 
     <application
         android:allowBackup="true"
@@ -13,6 +20,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="at.ac.tuwien.pointner.cvsp_mobile_face_recognition.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
