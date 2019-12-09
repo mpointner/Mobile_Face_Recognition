@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 26
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "at.ac.tuwien.pointner.cvsp_mobile_face_recognition"
         minSdkVersion 15
-        targetSdkVersion 29
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
