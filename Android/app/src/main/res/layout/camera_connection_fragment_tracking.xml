@@ -14,20 +14,22 @@
  limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000"
-    tools:context="at.ac.tuwien.pointner.cvspmobilefacerecognition.CameraActivity" >
+    android:layout_height="match_parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_margin="15dp"
-        android:tint="@android:color/white"
-        android:src="@android:drawable/ic_input_add"/>
+      <at.ac.tuwien.pointner.cvspmobilefacerecognition.AutoFitTextureView
+          android:id="@+id/texture"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
+
+      <at.ac.tuwien.pointner.cvspmobilefacerecognition.OverlayView
+          android:id="@+id/tracking_overlay"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
+
+      <at.ac.tuwien.pointner.cvspmobilefacerecognition.OverlayView
+          android:id="@+id/debug_overlay"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
 
 </FrameLayout>

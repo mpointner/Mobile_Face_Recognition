@@ -1,4 +1,4 @@
-package at.ac.tuwien.pointner.cvsp_mobile_face_recognition;
+package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("at.ac.tuwien.pointner.cvsp_mobile_face_recognition", appContext.getPackageName());
+        assertEquals("at.ac.tuwien.pointner.cvspmobilefacerecognition", appContext.getPackageName());
     }
 }

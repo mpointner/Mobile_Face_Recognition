@@ -2,14 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "at.ac.tuwien.pointner.cvsp_mobile_face_recognition"
-        minSdkVersion 21
+        applicationId "at.ac.tuwien.pointner.cvspmobilefacerecognition"
+        minSdkVersion 25
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
     buildTypes {
         release {
@@ -17,16 +18,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    externalNativeBuild {
+    cmake {
+        path file('src/main/jni/CMakeLists.txt')
+    }
+    }
     aaptOptions {
         noCompress "tflite"
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
-        abortOnError false
-    }
+    buildToolsVersion = '29.0.2'
 }
 
 // Download default models; if you wish to use your own models then
@@ -34,6 +38,7 @@ android {
 //apply from:'download.gradle'
 
 dependencies {
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -55,4 +60,9 @@ dependencies {
     // implementation 'org.tensorflow:tensorflow-lite-local:0.0.0'
 
     implementation 'androidx.annotation:annotation:1.1.0'
+
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha03'
+    implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
 }

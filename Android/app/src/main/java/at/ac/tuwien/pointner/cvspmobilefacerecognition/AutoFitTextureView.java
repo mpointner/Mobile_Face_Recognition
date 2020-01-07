@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.ac.tuwien.pointner.cvsp_mobile_face_recognition;
+package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,1 +1,1 @@
-# CVSP_Mobile_Face_Recognition
+# CVSPMobileFaceRecognition

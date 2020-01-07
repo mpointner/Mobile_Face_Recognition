@@ -1,4 +1,4 @@
-package at.ac.tuwien.pointner.cvsp_mobile_face_recognition;
+package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import android.Manifest;
 import android.content.Context;
@@ -11,10 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -158,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "at.ac.tuwien.pointner.cvsp_mobile_face_recognition.fileprovider",
+                        "at.ac.tuwien.pointner.cvspmobilefacerecognition.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);

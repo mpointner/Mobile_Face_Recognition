@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name='CVSP_Mobile_Face_Recognition'
+rootProject.name='CVSPMobileFaceRecognition'

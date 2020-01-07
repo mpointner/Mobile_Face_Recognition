@@ -47,7 +47,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:onClick="next"
-        android:visibility="gone"
+        android:visibility="visible"
         app:srcCompat="@android:drawable/ic_menu_send" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

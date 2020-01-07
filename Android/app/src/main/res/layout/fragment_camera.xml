@@ -17,7 +17,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <at.ac.tuwien.pointner.cvsp_mobile_face_recognition.AutoFitTextureView
+    <at.ac.tuwien.pointner.cvspmobilefacerecognition.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

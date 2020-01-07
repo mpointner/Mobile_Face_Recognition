@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package at.ac.tuwien.pointner.cvsp_mobile_face_recognition;
+package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CameraActivity extends AppCompatActivity {
+public class Camera2Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera);
+        setContentView(R.layout.activity_camera2);
         if (null == savedInstanceState) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, CameraFragment.newInstance())

@@ -1,4 +1,4 @@
-package at.ac.tuwien.pointner.cvsp_mobile_face_recognition;
+package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import org.junit.Test;
 
