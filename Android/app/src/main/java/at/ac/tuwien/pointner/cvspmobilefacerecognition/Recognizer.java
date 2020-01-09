@@ -26,6 +26,8 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
 import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -156,7 +158,13 @@ public class Recognizer {
     public void addIDImage(Bitmap bitmap, RectF rectF) {
         Rect rect = new Rect();
         rectF.round(rect);
-        IDCardEmbedding = faceNet.getEmbeddings(bitmap, rect);
+        IDCardEmbedding = ByteBuffer.allocateDirect(FaceNet.EMBEDDING_SIZE * FaceNet.BYTE_SIZE_OF_FLOAT)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        FloatBuffer embedding = faceNet.getEmbeddings(bitmap, rect);
+        IDCardEmbedding.rewind();
+        IDCardEmbedding.put(embedding);
+        IDCardEmbedding.flip();
         System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& IDCardEmbedding added " + IDCardEmbedding);
     }
 
@@ -178,14 +186,18 @@ public class Recognizer {
                 rectF.round(rect);
 
                 FloatBuffer buffer = faceNet.getEmbeddings(bitmap, rect);
-                /*
-                System.out.println("Embeddings: "+buffer);
-                int size = FaceNet.EMBEDDING_SIZE;
-                System.out.println("Embeddings size: "+size);
-                for(int i=0; i<size; i++) {
-                    System.out.print(buffer.get(i));
+
+                if (IDCardEmbedding != null) {
+                    System.out.println("Embeddings: ");
+                    int size = FaceNet.EMBEDDING_SIZE;
+                    float sum = 0f;
+                    for (int i = 0; i < size; i++) {
+                        sum += Math.pow(buffer.get(i) - IDCardEmbedding.get(i), 2);
+                    }
+                    float dist = (float) Math.sqrt(sum);
+
+                    System.out.println("Embedding Distance: " + dist);
                 }
-                */
 
                 //LibSVM.Prediction prediction = svm.predict(buffer);
 

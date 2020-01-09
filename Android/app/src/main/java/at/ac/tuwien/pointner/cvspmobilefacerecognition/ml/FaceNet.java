@@ -39,7 +39,7 @@ public class FaceNet {
     public static final int INPUT_SIZE_HEIGHT = 160;
     public static final int INPUT_SIZE_WIDTH = 160;
 
-    private static final int BYTE_SIZE_OF_FLOAT = 4;
+    public static final int BYTE_SIZE_OF_FLOAT = 4;
 
     // Pre-allocated buffers.
     private int[] intValues;
