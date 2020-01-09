@@ -245,7 +245,7 @@ public abstract class CameraActivityAbstract extends AppCompatActivity
             if (shouldShowRequestPermissionRationale(PERMISSION_CAMERA) ||
                     shouldShowRequestPermissionRationale(PERMISSION_STORAGE)) {
                 Toast.makeText(CameraActivityAbstract.this,
-                        "Camera AND storage permission are required for this demo", Toast.LENGTH_LONG).show();
+                        "Camera AND storage permission are required", Toast.LENGTH_LONG).show();
             }
             requestPermissions(new String[] {PERMISSION_CAMERA, PERMISSION_STORAGE}, PERMISSIONS_REQUEST);
         }
@@ -259,7 +259,7 @@ public abstract class CameraActivityAbstract extends AppCompatActivity
 
                 // We don't use a front facing camera in this sample.
                 final Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
+                if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
                     continue;
                 }
 

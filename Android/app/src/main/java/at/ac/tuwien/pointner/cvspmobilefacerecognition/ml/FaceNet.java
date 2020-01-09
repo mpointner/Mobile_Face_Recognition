@@ -52,6 +52,8 @@ public class FaceNet {
 
     private Interpreter interpreter;
 
+    private static FaceNet f;
+
     /** Memory-map the model file in Assets. */
     private static ByteBuffer loadModelFile(AssetManager assets)
             throws IOException {
@@ -69,7 +71,7 @@ public class FaceNet {
      * @param assetManager The asset manager to be used to load assets.
      */
     public static FaceNet create(final AssetManager assetManager) {
-        final FaceNet f = new FaceNet();
+        f = new FaceNet();
 
         try {
             f.interpreter = new Interpreter(loadModelFile(assetManager));
@@ -89,6 +91,14 @@ public class FaceNet {
 
         f.bitmap = Bitmap.createBitmap(INPUT_SIZE_WIDTH, INPUT_SIZE_HEIGHT, Config.ARGB_8888);
         return f;
+    }
+
+    public static FaceNet getInstance(final AssetManager assetManager) {
+        if (f != null) {
+            return f;
+        } else {
+            return create(assetManager);
+        }
     }
 
     private FaceNet() {}

@@ -4,30 +4,44 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.SparseArray;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.ImageView;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.FileUtils;
+import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.Logger;
+
 public class MainActivity extends AppCompatActivity {
+    private static final Logger LOGGER = new Logger();
 
     public ImageView imageView;
 
@@ -37,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     String currentPhotoPath;
 
     private FloatingActionButton nextButton;
-
+    private Recognizer recognizer;
 
 
     @Override
@@ -45,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.imageView);
-        nextButton = (FloatingActionButton) findViewById(R.id.next);
+        nextButton = findViewById(R.id.next);
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
@@ -72,6 +86,25 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             // Permission has already been granted
+        }
+
+        try {
+            File dir = new File(FileUtils.ROOT);
+
+            if (!dir.isDirectory()) {
+                if (dir.exists()) dir.delete();
+                dir.mkdirs();
+
+                AssetManager mgr = getAssets();
+                FileUtils.copyAsset(mgr, FileUtils.DATA_FILE);
+                FileUtils.copyAsset(mgr, FileUtils.MODEL_FILE);
+                FileUtils.copyAsset(mgr, FileUtils.LABEL_FILE);
+            }
+
+            recognizer = Recognizer.getInstance(getAssets());
+        } catch (Exception e) {
+            LOGGER.e("Exception initializing classifier!", e);
+            finish();
         }
     }
 
@@ -119,13 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
     /** Check if this device has a camera */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-            // this device has a camera
-            return true;
-        } else {
-            // no camera on this device
-            return false;
-        }
+        // this device has a camera
+        // no camera on this device
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
     /** A safe way to get an instance of the Camera object. */
@@ -182,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             System.out.println("onActivityResult");
             /*
@@ -192,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
              */
             galleryAddPic();
             setPic();
-            nextButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -225,6 +254,46 @@ public class MainActivity extends AppCompatActivity {
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        imageView.setImageBitmap(bitmap);
+
+        Paint myRectPaint = new Paint();
+        myRectPaint.setStrokeWidth(5);
+        myRectPaint.setColor(Color.RED);
+        myRectPaint.setStyle(Paint.Style.STROKE);
+
+        Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
+        Canvas tempCanvas = new Canvas(tempBitmap);
+        tempCanvas.drawBitmap(bitmap, 0, 0, null);
+
+        FaceDetector faceDetector = new
+                FaceDetector.Builder(getApplicationContext()).setTrackingEnabled(false)
+                .build();
+        if (!faceDetector.isOperational()) {
+            System.out.println("Could not set up the face detector!");
+            return;
+        }
+
+        Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+        SparseArray<Face> faces = faceDetector.detect(frame);
+
+        for (int i = 0; i < faces.size(); i++) {
+            Face thisFace = faces.valueAt(i);
+            float x1 = thisFace.getPosition().x;
+            float y1 = thisFace.getPosition().y;
+            float x2 = x1 + thisFace.getWidth();
+            float y2 = y1 + thisFace.getHeight();
+
+            recognizer.addIDImage(bitmap, new RectF(x1, y1, x2, y2));
+
+            tempCanvas.drawRoundRect(new RectF(x1, y1, x2, y2), 2, 2, myRectPaint);
+        }
+
+        imageView.setImageDrawable(new BitmapDrawable(getResources(), tempBitmap));
+
+        if (faces.size() > 0) {
+            nextButton.setVisibility(View.VISIBLE);
+        } else {
+            Toast toast = Toast.makeText(getApplicationContext(), "On your photo was no face detected. Have you taken a photo of an ID card with a photo on it? Please retake the photo...", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 }

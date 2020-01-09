@@ -36,15 +36,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-import androidx.appcompat.app.AlertDialog;
 
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.BorderedText;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.FileUtils;
@@ -92,7 +91,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
 
     private Snackbar initSnackbar;
     private Snackbar trainSnackbar;
-    private FloatingActionButton button;
+    //private FloatingActionButton button;
 
     private boolean initialized = false;
     private boolean training = false;
@@ -118,6 +117,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
                 })
                 .create();
 
+        /*
         button = findViewById(R.id.add_button);
         button.setOnClickListener(view ->
                 new AlertDialog.Builder(CameraActivity.this)
@@ -130,6 +130,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
                             }
                         })
                         .show());
+         */
     }
 
     @Override
@@ -313,7 +314,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
 
         if (resultCode == RESULT_OK) {
             trainSnackbar.show();
-            button.setEnabled(false);
+            //button.setEnabled(false);
             training = true;
 
             ClipData clipData = data.getClipData();
@@ -336,7 +337,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
                 }
                 runOnUiThread(() -> {
                     trainSnackbar.dismiss();
-                    button.setEnabled(true);
+                    //button.setEnabled(true);
                 });
             }).start();
 

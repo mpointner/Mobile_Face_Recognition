@@ -63,12 +63,15 @@ public class Recognizer {
         /** Optional location within the source image for the location of the recognized object. */
         private RectF location;
 
+        private FloatBuffer embedding;
+
         Recognition(
-                final String id, final String title, final Float confidence, final RectF location) {
+                final String id, final String title, final Float confidence, final RectF location, final FloatBuffer embedding) {
             this.id = id;
             this.title = title;
             this.confidence = confidence;
             this.location = location;
+            this.embedding = embedding;
         }
 
         public String getId() {
@@ -85,6 +88,10 @@ public class Recognizer {
 
         public RectF getLocation() {
             return new RectF(location);
+        }
+
+        public FloatBuffer getEmbedding() {
+            return embedding;
         }
 
         @Override
@@ -112,6 +119,8 @@ public class Recognizer {
 
     private static Recognizer recognizer;
 
+    private static FloatBuffer IDCardEmbedding;
+
     private BlazeFace blazeFace;
     private FaceNet faceNet;
     private LibSVM svm;
@@ -125,7 +134,7 @@ public class Recognizer {
 
         recognizer = new Recognizer();
         recognizer.blazeFace = BlazeFace.create(assetManager);
-        recognizer.faceNet = FaceNet.create(assetManager);
+        recognizer.faceNet = FaceNet.getInstance(assetManager);
         recognizer.svm = LibSVM.getInstance();
         recognizer.classNames = FileUtils.readLabel(FileUtils.LABEL_FILE);
 
@@ -144,24 +153,57 @@ public class Recognizer {
         return cs;
     }
 
+    public void addIDImage(Bitmap bitmap, RectF rectF) {
+        Rect rect = new Rect();
+        rectF.round(rect);
+        IDCardEmbedding = faceNet.getEmbeddings(bitmap, rect);
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& IDCardEmbedding added " + IDCardEmbedding);
+    }
+
     List<Recognition> recognizeImage(Bitmap bitmap, Matrix matrix) {
         synchronized (this) {
+            /*
+            Bitmap bitmapFlipped;
+            Matrix matrixFlipped = new Matrix();
+            matrixFlipped.preScale(-1.0f, 1.0f);
+            bitmapFlipped = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrixFlipped, false);
+            */
             List<RectF> faces = blazeFace.detect(bitmap);
             final List<Recognition> mappedRecognitions = new LinkedList<>();
+
+            System.out.println("############################ Faces found: " + faces.size());
 
             for (RectF rectF : faces) {
                 Rect rect = new Rect();
                 rectF.round(rect);
 
                 FloatBuffer buffer = faceNet.getEmbeddings(bitmap, rect);
-                LibSVM.Prediction prediction = svm.predict(buffer);
+                /*
+                System.out.println("Embeddings: "+buffer);
+                int size = FaceNet.EMBEDDING_SIZE;
+                System.out.println("Embeddings size: "+size);
+                for(int i=0; i<size; i++) {
+                    System.out.print(buffer.get(i));
+                }
+                */
+
+                //LibSVM.Prediction prediction = svm.predict(buffer);
 
                 matrix.mapRect(rectF);
+                /*
                 int index = prediction.getIndex();
+                index = 1;
 
                 String name = classNames.get(index);
+
+                System.out.println("############################ Prediction: "+index+" "+name+" "+prediction.getProb()+" "+rectF);
+                 */
+                /*
                 Recognition result =
                         new Recognition("" + index, name, prediction.getProb(), rectF);
+                 */
+                Recognition result =
+                        new Recognition("" + 1, "Donald Trump", 0.4f, rectF, buffer);
                 mappedRecognitions.add(result);
             }
             return mappedRecognitions;
@@ -184,6 +226,7 @@ public class Recognizer {
 
                 float[] emb_array = new float[FaceNet.EMBEDDING_SIZE];
                 faceNet.getEmbeddings(bitmap, rect).get(emb_array);
+                System.out.println("############################ UpdateData");
                 list.add(emb_array);
             }
 

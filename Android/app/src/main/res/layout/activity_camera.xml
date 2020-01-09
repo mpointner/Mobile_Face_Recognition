@@ -18,9 +18,10 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000"
+    android:background="#666"
     tools:context="at.ac.tuwien.pointner.cvspmobilefacerecognition.CameraActivity" >
 
+    <!--
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_button"
         android:layout_width="wrap_content"
@@ -29,5 +30,39 @@
         android:layout_margin="15dp"
         android:tint="@android:color/white"
         android:src="@android:drawable/ic_input_add"/>
+    -->
+
+    <!--
+    <FrameLayout
+        android:id="@+id/control"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+    -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Biometric Match approved \n(SimilColor=" />
+
+        <Button
+            android:id="@+id/continueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/continue_text" />@coloral"
+        android:textarity difference: 0.94)" />
+    </LinearLayout>
+
+    <!--</FrameLayout>-->
 
 </FrameLayout>
