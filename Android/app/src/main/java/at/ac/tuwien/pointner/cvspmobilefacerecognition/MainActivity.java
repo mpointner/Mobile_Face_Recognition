@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 FileUtils.copyAsset(mgr, FileUtils.LABEL_FILE);
             }
 
-            recognizer = Recognizer.getInstance(getAssets());
+            recognizer = Recognizer.getInstance(getAssets(), getApplicationContext());
         } catch (Exception e) {
             LOGGER.e("Exception initializing classifier!", e);
             finish();

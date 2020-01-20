@@ -16,40 +16,29 @@ package at.ac.tuwien.pointner.cvspmobilefacerecognition;
  * limitations under the License.
  */
 
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-
-import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.BorderedText;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.FileUtils;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.ImageUtils;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.Logger;
-import at.ac.tuwien.pointner.cvspmobilefacerecognition.ml.BlazeFace;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.tracking.MultiBoxTracker;
 
 /**
@@ -59,8 +48,8 @@ import at.ac.tuwien.pointner.cvspmobilefacerecognition.tracking.MultiBoxTracker;
 public class CameraActivity extends CameraActivityAbstract implements OnImageAvailableListener {
     private static final Logger LOGGER = new Logger();
 
-    private static final int CROP_HEIGHT = BlazeFace.INPUT_SIZE_HEIGHT;
-    private static final int CROP_WIDTH = BlazeFace.INPUT_SIZE_WIDTH;
+    private static final int CROP_HEIGHT = 128; //BlazeFace.INPUT_SIZE_HEIGHT;
+    private static final int CROP_WIDTH = 128; //BlazeFace.INPUT_SIZE_WIDTH;
 
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
 
@@ -90,8 +79,6 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
     private BorderedText borderedText;
 
     private Snackbar initSnackbar;
-    private Snackbar trainSnackbar;
-    //private FloatingActionButton button;
 
     private boolean initialized = false;
     private boolean training = false;
@@ -103,34 +90,6 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
         FrameLayout container = findViewById(R.id.container);
         initSnackbar = Snackbar.make(
                 container, getString(R.string.initializing), Snackbar.LENGTH_INDEFINITE);
-        trainSnackbar = Snackbar.make(
-                container, getString(R.string.training), Snackbar.LENGTH_INDEFINITE);
-
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edittext, null);
-        EditText editText = dialogView.findViewById(R.id.edit_text);
-        AlertDialog editDialog = new AlertDialog.Builder(CameraActivity.this)
-                .setTitle(R.string.enter_name)
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
-                    int idx = recognizer.addPerson(editText.getText().toString());
-                    performFileSearch(idx - 1);
-                })
-                .create();
-
-        /*
-        button = findViewById(R.id.add_button);
-        button.setOnClickListener(view ->
-                new AlertDialog.Builder(CameraActivity.this)
-                        .setTitle(getString(R.string.select_name))
-                        .setItems(recognizer.getClassNames(), (dialogInterface, i) -> {
-                            if (i == 0) {
-                                editDialog.show();
-                            } else {
-                                performFileSearch(i - 1);
-                            }
-                        })
-                        .show());
-         */
     }
 
     @Override
@@ -173,37 +132,6 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
                         tracker.drawDebug(canvas);
                     }
                 });
-
-        addCallback(
-                canvas -> {
-                    if (!isDebug()) {
-                        return;
-                    }
-                    final Bitmap copy = cropCopyBitmap;
-                    if (copy == null) {
-                        return;
-                    }
-
-                    final int backgroundColor = Color.argb(100, 0, 0, 0);
-                    canvas.drawColor(backgroundColor);
-
-                    final Matrix matrix = new Matrix();
-                    final float scaleFactor = 2;
-                    matrix.postScale(scaleFactor, scaleFactor);
-                    matrix.postTranslate(
-                            canvas.getWidth() - copy.getWidth() * scaleFactor,
-                            canvas.getHeight() - copy.getHeight() * scaleFactor);
-                    canvas.drawBitmap(copy, matrix, new Paint());
-
-                    final Vector<String> lines = new Vector<>();
-                    lines.add("Frame: " + previewWidth + "x" + previewHeight);
-                    lines.add("Crop: " + copy.getWidth() + "x" + copy.getHeight());
-                    lines.add("View: " + canvas.getWidth() + "x" + canvas.getHeight());
-                    lines.add("Rotation: " + sensorOrientation);
-                    lines.add("Inference time: " + lastProcessingTimeMs + "ms");
-
-                    borderedText.drawLines(canvas, 10, canvas.getHeight() - 10, lines);
-                });
     }
 
     OverlayView trackingOverlay;
@@ -224,7 +152,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
             }
 
             try {
-                recognizer = Recognizer.getInstance(getAssets());
+                recognizer = Recognizer.getInstance(getAssets(), getApplicationContext());
             } catch (Exception e) {
                 LOGGER.e("Exception initializing classifier!", e);
                 finish();
@@ -304,6 +232,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        /*
         if (!initialized) {
             Snackbar.make(
                     getWindow().getDecorView().findViewById(R.id.container),
@@ -342,6 +271,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
             }).start();
 
         }
+        */
     }
 
     public void performFileSearch(int requestCode) {

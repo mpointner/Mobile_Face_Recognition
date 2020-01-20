@@ -19,9 +19,9 @@ android {
         }
     }
     externalNativeBuild {
-    cmake {
-        path file('src/main/jni/CMakeLists.txt')
-    }
+        cmake {
+            path file('src/main/jni/CMakeLists.txt')
+        }
     }
     aaptOptions {
         noCompress "tflite"
