@@ -33,10 +33,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import at.ac.tuwien.pointner.cvspmobilefacerecognition.Recognizer.Recognition;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.BorderedText;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.ImageUtils;
 import at.ac.tuwien.pointner.cvspmobilefacerecognition.env.Logger;
-import at.ac.tuwien.pointner.cvspmobilefacerecognition.Recognizer.Recognition;
 
 /**
  * A tracker wrapping ObjectTracker that also handles non-max suppression and matching existing
@@ -163,7 +163,7 @@ public class MultiBoxTracker {
     }
 
     public synchronized void draw(final Canvas canvas) {
-        final boolean rotated = sensorOrientation % 180 == 90;
+        boolean rotated = sensorOrientation % 180 == 90;
         final float multiplier =
                 Math.min(canvas.getHeight() / (float) (rotated ? frameWidth : frameHeight),
                         canvas.getWidth() / (float) (rotated ? frameHeight : frameWidth));
@@ -176,7 +176,7 @@ public class MultiBoxTracker {
                         sensorOrientation,
                         false);
         for (final TrackedRecognition recognition : trackedObjects) {
-            final RectF trackedPos =
+            RectF trackedPos =
                     (objectTracker != null)
                             ? recognition.trackedObject.getTrackedPositionInPreviewFrame()
                             : new RectF(recognition.location);
@@ -184,13 +184,22 @@ public class MultiBoxTracker {
             getFrameToCanvasMatrix().mapRect(trackedPos);
             boxPaint.setColor(recognition.color);
 
+            //trackedPos.left = canvas.getWidth() - trackedPos.left;
+            //trackedPos.right = canvas.getWidth() - trackedPos.right;
+
             canvas.drawRect(trackedPos, boxPaint);
 
+            /*
             final String labelString =
                     !TextUtils.isEmpty(recognition.title)
-                            ? String.format("%s %.2f", recognition.title, recognition.detectionConfidence)
-                            : String.format("%.2f", recognition.detectionConfidence);
+                            ? String.format("%s \n(Distance: %.2f)", recognition.title, recognition.detectionConfidence)
+                            : String.format("Distance: %.2f", recognition.detectionConfidence);
+             */
+            final String labelString = !TextUtils.isEmpty(recognition.title) ? recognition.title : "";
             borderedText.drawText(canvas, trackedPos.left, trackedPos.bottom, labelString);
+
+            final String distString = String.format("Distance: %.2f", recognition.detectionConfidence);
+            borderedText.drawText(canvas, trackedPos.left, trackedPos.top, distString);
         }
     }
 
@@ -286,12 +295,15 @@ public class MultiBoxTracker {
                 trackedRecognition.location = new RectF(potential.second.getLocation());
                 trackedRecognition.trackedObject = null;
                 trackedRecognition.title = potential.second.getTitle();
-                trackedRecognition.color = COLORS[trackedObjects.size()];
+                trackedRecognition.color = potential.second.getColor();
+                //trackedRecognition.color = COLORS[trackedObjects.size()];
                 trackedObjects.add(trackedRecognition);
 
+                /*
                 if (trackedObjects.size() >= COLORS.length) {
                     break;
                 }
+                */
             }
             return;
         }
@@ -415,8 +427,11 @@ public class MultiBoxTracker {
         trackedRecognition.title = potential.second.getTitle();
 
         // Use the color from a replaced object before taking one from the color queue.
+        trackedRecognition.color = potential.second.getColor();
+        /*
         trackedRecognition.color =
                 recogToReplace != null ? recogToReplace.color : availableColors.poll();
+         */
         trackedObjects.add(trackedRecognition);
     }
 }

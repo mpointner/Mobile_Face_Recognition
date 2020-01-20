@@ -18,7 +18,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#666"
+    android:background="#000"
     tools:context="at.ac.tuwien.pointner.cvspmobilefacerecognition.CameraActivity" >
 
     <!--
@@ -40,28 +40,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true">
     -->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Biometric Match approved \n(SimilColor=" />
-
-        <Button
-            android:id="@+id/continueButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/continue_text" />@coloral"
-        android:textarity difference: 0.94)" />
-    </LinearLayout>
 
     <!--</FrameLayout>-->
 

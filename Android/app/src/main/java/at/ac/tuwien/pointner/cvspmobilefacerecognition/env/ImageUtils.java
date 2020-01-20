@@ -302,6 +302,8 @@ public class ImageUtils {
             }
         }
 
+        matrix.postScale(-1, 1);
+
         if (applyRotation != 0) {
             // Translate back from origin centered reference to destination frame.
             matrix.postTranslate(dstWidth / 2.0f, dstHeight / 2.0f);

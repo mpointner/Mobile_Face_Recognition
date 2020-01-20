@@ -210,7 +210,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
 
     void init() {
         runInBackground(() -> {
-            runOnUiThread(()-> initSnackbar.show());
+            runOnUiThread(() -> initSnackbar.show());
             File dir = new File(FileUtils.ROOT);
 
             if (!dir.isDirectory()) {
@@ -230,7 +230,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
                 finish();
             }
 
-            runOnUiThread(()-> initSnackbar.dismiss());
+            runOnUiThread(() -> initSnackbar.dismiss());
             initialized = true;
         });
     }
@@ -279,7 +279,7 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
 
                     cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
                     List<Recognizer.Recognition> mappedRecognitions =
-                            recognizer.recognizeImage(croppedBitmap,cropToFrameTransform);
+                            recognizer.recognizeImage(croppedBitmap, cropToFrameTransform, getApplicationContext());
 
                     lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
                     tracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
