@@ -16,6 +16,7 @@ package at.ac.tuwien.pointner.cvspmobilefacerecognition;
  * limitations under the License.
  */
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -90,6 +91,16 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
         FrameLayout container = findViewById(R.id.container);
         initSnackbar = Snackbar.make(
                 container, getString(R.string.initializing), Snackbar.LENGTH_INDEFINITE);
+
+
+        AlertDialog alertDialog = new AlertDialog.Builder(CameraActivity.this).create();
+        alertDialog.setTitle("Great!");
+        alertDialog.setMessage("Now please look into the camera and smile :) It might take a few seconds until the first detection. If the rectangle turns green, your identity match with the ID card is confirmed.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        alertDialog.show();
     }
 
     @Override

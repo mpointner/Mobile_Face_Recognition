@@ -1,6 +1,7 @@
 package at.ac.tuwien.pointner.cvspmobilefacerecognition;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,7 +21,6 @@ import android.provider.MediaStore;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -106,6 +106,16 @@ public class MainActivity extends AppCompatActivity {
             LOGGER.e("Exception initializing classifier!", e);
             finish();
         }
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("Welcome to this Mobile face recognition / Biometric match demo");
+        alertDialog.setMessage("Please take a landscape photo of your ID Card.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    takeIDPhoto();
+                });
+        alertDialog.show();
     }
 
     @Override
@@ -139,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void action(View view) {
         takeIDPhoto();
-        //showVideo();
     }
 
     private void showVideo() {
@@ -256,8 +265,8 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
 
         Paint myRectPaint = new Paint();
-        myRectPaint.setStrokeWidth(5);
-        myRectPaint.setColor(Color.RED);
+        myRectPaint.setStrokeWidth(12.0f);
+        myRectPaint.setColor(Color.GREEN);
         myRectPaint.setStyle(Paint.Style.STROKE);
 
         Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
@@ -291,9 +300,22 @@ public class MainActivity extends AppCompatActivity {
 
         if (faces.size() > 0) {
             nextButton.setVisibility(View.VISIBLE);
+
+            next(null);
         } else {
-            Toast toast = Toast.makeText(getApplicationContext(), "On your photo was no face detected. Have you taken a photo of an ID card with a photo on it? Please retake the photo...", Toast.LENGTH_LONG);
+            /*
+            Toast toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG);
             toast.show();
+            */
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle("No face detected");
+            alertDialog.setMessage("On your photo was no face detected. Have you taken a photo of an ID card with a photo on it? Was it sharp? Please retake the photo...");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    (dialog, which) -> {
+                        dialog.dismiss();
+                        takeIDPhoto();
+                    });
+            alertDialog.show();
         }
     }
 }

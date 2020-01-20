@@ -9,11 +9,11 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
 
-
+    <!--android:icon="@mipmap/ic_launcher"-->
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -33,6 +33,7 @@
         <activity
             android:name="at.ac.tuwien.pointner.cvspmobilefacerecognition.MainActivity"
             android:label="@string/title_activity_main"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +43,8 @@
         </activity>
 
         <activity android:name="at.ac.tuwien.pointner.cvspmobilefacerecognition.CameraActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 
