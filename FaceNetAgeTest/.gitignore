@@ -3,3 +3,5 @@
 dataset
 images
 export
+*.tar.gz
+__pycache__

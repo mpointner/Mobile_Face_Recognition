@@ -6,6 +6,7 @@ import cv2
 import os
 import shutil
 import random
+import tqdm
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
@@ -125,6 +126,12 @@ num_samples = 10000
 threshold = 1.1
 
 
+true_positives = 0
+false_positives = 0
+true_negatives = 0
+false_negatives = 0
+
+
 persons = os.listdir(dir)
 
 print("Same Person:")
@@ -133,20 +140,34 @@ samePerson_Filename = "export/same_person.csv"
 if os.path.exists(samePerson_Filename):
     samePerson_importFile = open(samePerson_Filename, "r")
     samePerson_importFile.readline()
-    for line in samePerson_importFile.readlines():
+    for line in tqdm.tqdm(samePerson_importFile.readlines(), desc="Read same person csv"):
         elements = line.strip().split(";")
         person1, person1_image, person2, person2_image = elements[:4]
         distance = float(elements[4])
         samePerson.append(distance)
+        if distance <= threshold:
+            true_positives = true_positives + 1
+        else:
+            false_negatives = false_negatives + 1
+        '''
+        if distance > threshold:
+            shutil.copyfile(dir+person1+"/"+person1_image, "export/false_negatives/"+str(distance)+" - "+person1+" "+person1_image+" compared to "+person2+" "+person2_image+" img1.jpg")
+            shutil.copyfile(dir+person2+"/"+person2_image, "export/false_negatives/"+str(distance)+" - "+person1+" "+person1_image+" compared to "+person2+" "+person2_image+" img2.jpg")
+        '''
     samePerson_importFile.close()
 else:
     samePerson_exportFile = open(samePerson_Filename, "w")
     samePerson_exportFile.write("person1;person1_image;person2;person2_image;distance\n")
 
-    for count in range(num_samples):
+    for count in tqdm.tqdm(range(num_samples), desc="Calc same person"):
         person = random.choice(persons)
 
-        samePerson.append(choosePersonImages(person, person, samePerson_exportFile))
+        distance = choosePersonImages(person, person, samePerson_exportFile)
+        samePerson.append(distance)
+        if distance <= threshold:
+            true_positives = true_positives + 1
+        else:
+            false_negatives = false_negatives + 1
     samePerson_exportFile.close()
 #print(samePerson)
 
@@ -158,29 +179,69 @@ differentPerson_Filename = "export/different_person.csv"
 if os.path.exists(differentPerson_Filename):
     differentPerson_importFile = open(differentPerson_Filename, "r")
     differentPerson_importFile.readline()
-    for line in differentPerson_importFile.readlines():
+    for line in tqdm.tqdm(differentPerson_importFile.readlines(), desc="Read different person csv"):
         elements = line.strip().split(";")
         person1, person1_image, person2, person2_image = elements[:4]
         distance = float(elements[4])
         differentPerson.append(distance)
+        if distance > threshold:
+            true_negatives = true_negatives + 1
+        else:
+            false_positives = false_positives + 1
+        '''
+        if distance <= threshold:
+            shutil.copyfile(dir+person1+"/"+person1_image, "export/false_positives/"+str(distance)+" - "+person1+" "+person1_image+" compared to "+person2+" "+person2_image+" img1.jpg")
+            shutil.copyfile(dir+person2+"/"+person2_image, "export/false_positives/"+str(distance)+" - "+person1+" "+person1_image+" compared to "+person2+" "+person2_image+" img2.jpg")
+        '''
     differentPerson_importFile.close()
 else:
     differentPerson_exportFile = open(differentPerson_Filename, "w")
     differentPerson_exportFile.write("person1;person1_image;person2;person2_image;distance\n")
 
-    for count in range(num_samples):
+    for count in tqdm.tqdm(range(num_samples), desc="Calc different person"):
         person1 = random.choice(persons)
         person2 = random.choice(persons)
 
         while str(person1) == str(person2):
             person2 = random.choice(persons)
 
-        differentPerson.append(choosePersonImages(person1, person2, differentPerson_exportFile))
+        distance = choosePersonImages(person1, person2, differentPerson_exportFile)
+        differentPerson.append(distance)
+        if distance > threshold:
+            true_negatives = true_negatives + 1
+        else:
+            false_positives = false_positives + 1
     differentPerson_exportFile.close()
 #print(differentPerson)
 
 
 print("Not detected: "+str(not_detected)+" percent: "+str(not_detected/(2.0*num_samples)))
+
+
+print("true_positives: "+str(true_positives)+" = "+str(true_positives/(2*num_samples)))
+print("false_positives: "+str(false_positives)+" = "+str(false_positives/(2*num_samples)))
+print("true_negatives: "+str(true_negatives)+" = "+str(true_negatives/(2*num_samples)))
+print("false_negatives: "+str(false_negatives)+" = "+str(false_negatives/(2*num_samples)))
+
+
+print("Precision: "+str(true_positives/(true_positives+false_positives)))
+print("Recall: "+str(true_positives/(true_positives+false_negatives)))
+
+
+
+
+# Pie chart, where the slices will be ordered and plotted counter-clockwise:
+labels = 'True negatives', 'False negatives', 'True positives', 'False positives'
+sizes = [true_negatives/(2*num_samples), false_negatives/(2*num_samples), true_positives/(2*num_samples), false_positives/(2*num_samples)]
+explode = (0, 0.3, 0, 0.3)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+fig1, ax1 = plt.subplots()
+ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+plt.show()
+
 
 
 colors = ['#E69F00', '#56B4E9']
