@@ -4,7 +4,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="imageview_placeholder">Preview of Camera Image</string>
-    <string name="title_activity_main">CVSP Mobile face recognition / Biometric Match</string>
+    <string name="title_activity_main">CVSP Mobile face recognition / Biometric match</string>
 
     <string name="picture">Picture</string>
     <string name="description_info">Info</string>
