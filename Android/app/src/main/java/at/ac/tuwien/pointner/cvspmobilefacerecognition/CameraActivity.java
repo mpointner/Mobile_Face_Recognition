@@ -242,55 +242,5 @@ public class CameraActivity extends CameraActivityAbstract implements OnImageAva
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        /*
-        if (!initialized) {
-            Snackbar.make(
-                    getWindow().getDecorView().findViewById(R.id.container),
-                    getString(R.string.try_it_later), Snackbar.LENGTH_SHORT)
-                    .show();
-            return;
-        }
-
-        if (resultCode == RESULT_OK) {
-            trainSnackbar.show();
-            //button.setEnabled(false);
-            training = true;
-
-            ClipData clipData = data.getClipData();
-            ArrayList<Uri> uris = new ArrayList<>();
-
-            if (clipData == null) {
-                uris.add(data.getData());
-            } else {
-                for (int i = 0; i < clipData.getItemCount(); i++)
-                    uris.add(clipData.getItemAt(i).getUri());
-            }
-
-            new Thread(() -> {
-                try {
-                    recognizer.updateData(requestCode, getContentResolver(), uris);
-                } catch (Exception e) {
-                    LOGGER.e(e, "Exception!");
-                } finally {
-                    training = false;
-                }
-                runOnUiThread(() -> {
-                    trainSnackbar.dismiss();
-                    //button.setEnabled(true);
-                });
-            }).start();
-
-        }
-        */
-    }
-
-    public void performFileSearch(int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setType("image/*");
-
-        startActivityForResult(intent, requestCode);
     }
 }

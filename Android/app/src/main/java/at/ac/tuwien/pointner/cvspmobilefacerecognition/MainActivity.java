@@ -10,17 +10,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public ImageView imageView;
 
     static final int REQUEST_TAKE_PHOTO = 1;
-    static final  int REQUEST_CAMERA = 2;
+    static final int REQUEST_CAMERA = 2;
 
     String currentPhotoPath;
 
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("&&&&&&&&&&&&&& START &&&&&&&&&&&");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.imageView);
@@ -153,26 +157,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void showVideo() {
         boolean hasCameraHardware = checkCameraHardware(this);
-        System.out.println("hasCameraHardware: "+hasCameraHardware);
-        System.out.println("NumberOfCameras: "+Camera.getNumberOfCameras());
+        System.out.println("hasCameraHardware: " + hasCameraHardware);
+        System.out.println("NumberOfCameras: " + Camera.getNumberOfCameras());
         Camera camera = getCameraInstance();
-        System.out.println("Camera: "+camera);
+        System.out.println("Camera: " + camera);
     }
 
-    /** Check if this device has a camera */
+    /**
+     * Check if this device has a camera
+     */
     private boolean checkCameraHardware(Context context) {
         // this device has a camera
         // no camera on this device
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance(){
+    /**
+     * A safe way to get an instance of the Camera object.
+     */
+    public static Camera getCameraInstance() {
         Camera c = null;
         try {
             c = Camera.open(); // attempt to get a Camera instance
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             // Camera is not available (in use or does not exist)
             System.err.println("Camera is not available (in use or does not exist)");
         }
@@ -255,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
         int photoH = bmOptions.outHeight;
 
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
@@ -264,25 +271,62 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
 
+
+        imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+
+        Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG).show();
+
+        AlertDialog patientDialog = new AlertDialog.Builder(MainActivity.this).create();
+        patientDialog.setTitle("FaceDetection Running");
+        patientDialog.setMessage("Searching for Faces... This might take a few seconds, please be patient.");
+        patientDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        patientDialog.show();
+
+        AsyncTask.execute(() -> {
+                    FaceDetector faceDetector = new
+                            FaceDetector.Builder(getApplicationContext()).setTrackingEnabled(false)
+                            .build();
+                    if (!faceDetector.isOperational()) {
+                        System.out.println("Could not set up the face detector!");
+                        return;
+                    }
+
+                    SparseArray<Face> faces = null;
+
+                    Bitmap faceSearchBitmap = Bitmap.createBitmap(bitmap);
+                    for (int i = 0; (faces == null || faces.size() == 0) && i < 4; i++) {
+                        Frame frame = new Frame.Builder().setBitmap(faceSearchBitmap).build();
+                        faces = faceDetector.detect(frame);
+
+                        if (faces.size() == 0) {
+                            Matrix rotateMat = new Matrix();
+                            rotateMat.postRotate(90);
+                            faceSearchBitmap = Bitmap.createBitmap(faceSearchBitmap, 0, 0, faceSearchBitmap.getWidth(), faceSearchBitmap.getHeight(), rotateMat, true);
+                        }
+                    }
+
+                    SparseArray<Face> finalFaces = faces;
+                    Bitmap finalFaceSearchBitmap = faceSearchBitmap;
+                    runOnUiThread(() -> updateImageView(finalFaceSearchBitmap, finalFaces));
+                }
+        );
+
+
+
+    }
+
+    public void updateImageView(final Bitmap faceSearchBitmap, final SparseArray<Face> faces) {
+        Bitmap tempBitmap = Bitmap.createBitmap(faceSearchBitmap.getWidth(), faceSearchBitmap.getHeight(), Bitmap.Config.RGB_565);
+        Canvas tempCanvas = new Canvas(tempBitmap);
+        tempCanvas.drawBitmap(faceSearchBitmap, 0, 0, null);
+
         Paint myRectPaint = new Paint();
         myRectPaint.setStrokeWidth(12.0f);
         myRectPaint.setColor(Color.GREEN);
         myRectPaint.setStyle(Paint.Style.STROKE);
-
-        Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
-        Canvas tempCanvas = new Canvas(tempBitmap);
-        tempCanvas.drawBitmap(bitmap, 0, 0, null);
-
-        FaceDetector faceDetector = new
-                FaceDetector.Builder(getApplicationContext()).setTrackingEnabled(false)
-                .build();
-        if (!faceDetector.isOperational()) {
-            System.out.println("Could not set up the face detector!");
-            return;
-        }
-
-        Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-        SparseArray<Face> faces = faceDetector.detect(frame);
 
         for (int i = 0; i < faces.size(); i++) {
             Face thisFace = faces.valueAt(i);
@@ -291,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             float x2 = x1 + thisFace.getWidth();
             float y2 = y1 + thisFace.getHeight();
 
-            recognizer.addIDImage(bitmap, new RectF(x1, y1, x2, y2));
+            recognizer.addIDImage(faceSearchBitmap, new RectF(x1, y1, x2, y2));
 
             tempCanvas.drawRoundRect(new RectF(x1, y1, x2, y2), 2, 2, myRectPaint);
         }
@@ -318,4 +362,6 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.show();
         }
     }
+
+
 }
