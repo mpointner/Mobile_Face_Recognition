@@ -11,7 +11,7 @@ Minimum Android 8.0 (=minSdkVersion: 26, targetSdkVersion: 29, architecture: arm
 - Enter FaceNetAgeTest
 - Go to http://www.robots.ox.ac.uk/~vgg/data/vgg_face2/data_infor.html and download the "Test Data_v1." an extract it into the a new subfolder ./dataset/test
 - Download the model https://gitlab.fit.cvut.cz/pitakma1/mvi-sp/blob/eb9c9db755077bd6fe0a61c1bbb1cced5f20d6d1/data/20170512-110547/20170512-110547.pb and put it into folder named 20170512-110547
-- Create and export folder
+- Create an export folder
 - Install tensorflow (I used tensorflow-gpu:1.14.0) and all packages under requirements.txt
 - Run face_match_test_random_subset.py
 
